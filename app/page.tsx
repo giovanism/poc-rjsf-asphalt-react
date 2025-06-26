@@ -62,13 +62,175 @@ const defaultFormData = `{
   "role": "user"
 }`;
 
+const useCases = {
+  userProfile: {
+    label: "User Profile",
+    schema: defaultSchema,
+    formData: defaultFormData
+  },
+  autoScalingGroup: {
+    label: "Auto Scaling Group",
+    schema: `{
+      "type": "object",
+      "title": "Auto Scaling Group Configuration",
+      "required": ["groupName", "minSize", "maxSize", "targetSize", "instanceType"],
+      "properties": {
+        "groupName": {
+          "type": "string",
+          "title": "Group Name",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9-_]+$"
+        },
+        "minSize": {
+          "type": "integer",
+          "title": "Minimum Size",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "maxSize": {
+          "type": "integer",
+          "title": "Maximum Size",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "targetSize": {
+          "type": "integer",
+          "title": "Desired Capacity",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "instanceType": {
+          "type": "string",
+          "title": "Instance Type",
+          "enum": ["t3.micro", "t3.small", "t3.medium", "t3.large"],
+          "enumNames": ["t3.micro (2 vCPU, 1GB)", "t3.small (2 vCPU, 2GB)", "t3.medium (2 vCPU, 4GB)", "t3.large (2 vCPU, 8GB)"]
+        },
+        "cooldown": {
+          "type": "integer",
+          "title": "Cooldown Period (seconds)",
+          "default": 300,
+          "minimum": 0,
+          "maximum": 3600
+        },
+        "monitoring": {
+          "type": "boolean",
+          "title": "Enable Detailed Monitoring",
+          "default": false
+        }
+      }
+    }`,
+    formData: `{
+      "groupName": "web-servers",
+      "minSize": 1,
+      "maxSize": 10,
+      "targetSize": 3,
+      "instanceType": "t3.medium",
+      "cooldown": 300,
+      "monitoring": true
+    }`
+  },
+  kubernetesDeployment: {
+    label: "Kubernetes Deployment",
+    schema: `{
+      "type": "object",
+      "title": "Kubernetes Deployment Configuration",
+      "required": ["name", "image", "replicas"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Deployment Name",
+          "pattern": "^[a-z0-9-]+$",
+          "minLength": 1
+        },
+        "namespace": {
+          "type": "string",
+          "title": "Namespace",
+          "default": "default"
+        },
+        "image": {
+          "type": "string",
+          "title": "Container Image",
+          "pattern": "^([a-zA-Z0-9-._]+\\/)?([a-zA-Z0-9-._]+\\/)*[a-zA-Z0-9-._]+(?:[:@][a-zA-Z0-9-._]+)?$",
+          "description": "Docker image name (e.g., nginx:1.19, registry.example.com/org/app:v1.0.0)"
+        },
+        "replicas": {
+          "type": "integer",
+          "title": "Number of Replicas",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 1
+        },
+        "resources": {
+          "type": "object",
+          "title": "Resource Limits",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "title": "CPU Limit",
+              "default": "500m"
+            },
+            "memory": {
+              "type": "string",
+              "title": "Memory Limit",
+              "default": "512Mi"
+            }
+          }
+        },
+        "ports": {
+          "type": "array",
+          "title": "Container Ports",
+          "items": {
+            "type": "object",
+            "properties": {
+              "containerPort": {
+                "type": "integer",
+                "title": "Container Port",
+                "minimum": 1,
+                "maximum": 65535
+              },
+              "protocol": {
+                "type": "string",
+                "title": "Protocol",
+                "enum": ["TCP", "UDP"],
+                "default": "TCP"
+              }
+            }
+          }
+        }
+      }
+    }`,
+    formData: `{
+      "name": "frontend-app",
+      "namespace": "production",
+      "image": "nginx:1.19",
+      "replicas": 3,
+      "resources": {
+        "cpu": "500m",
+        "memory": "512Mi"
+      },
+      "ports": [
+        {
+          "containerPort": 80,
+          "protocol": "TCP"
+        }
+      ]
+    }`
+  }
+};
+
 export default function Home() {
   const [schema, setSchema] = useState(defaultSchema);
   const [formData, setFormData] = useState(defaultFormData);
+  const [selectedUseCase, setSelectedUseCase] = useState<keyof typeof useCases>("userProfile");
+
+  const handleUseCaseChange = (useCase: keyof typeof useCases) => {
+    setSelectedUseCase(useCase);
+    setSchema(useCases[useCase].schema);
+    setFormData(useCases[useCase].formData);
+  };
 
   const handleReset = () => {
-    setSchema(defaultSchema);
-    setFormData(defaultFormData);
+    handleUseCaseChange(selectedUseCase);
   };
 
   return (
@@ -84,14 +246,25 @@ export default function Home() {
                 Build and test JSON schemas with live form rendering
               </p>
             </div>
-            <Button
-              onClick={handleReset}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Reset to Example
-            </Button>
+            <div className="flex items-center gap-4">
+              <select
+                value={selectedUseCase}
+                onChange={(e) => handleUseCaseChange(e.target.value as keyof typeof useCases)}
+                className="py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                {Object.entries(useCases).map(([key, { label }]) => (
+                  <option key={key} value={key}>{label}</option>
+                ))}
+              </select>
+              <Button
+                onClick={handleReset}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Reset
+              </Button>
+            </div>
           </div>
         </div>
 

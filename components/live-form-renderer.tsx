@@ -17,6 +17,7 @@ import {
 
 interface LiveFormRendererProps {
   schema: string;
+  uiSchema: string;
   formData: string;
   onFormDataChange: (data: string) => void;
 }
@@ -28,12 +29,13 @@ const widgets = {
   SelectWidget,
 };
 
-export function LiveFormRenderer({ schema, formData, onFormDataChange }: LiveFormRendererProps) {
+export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange }: LiveFormRendererProps) {
   const [activeTab, setActiveTab] = useState('create');
   const [errors, setErrors] = useState<string[]>([]);
 
-  const { parsedSchema, parsedFormData, isSchemaValid, isFormDataValid } = useMemo(() => {
+  const { parsedSchema, parsedUISchema, parsedFormData, isSchemaValid, isFormDataValid } = useMemo(() => {
     let parsedSchema = null;
+    let parsedUISchema = null;
     let parsedFormData = null;
     let isSchemaValid = false;
     let isFormDataValid = false;
@@ -49,6 +51,14 @@ export function LiveFormRenderer({ schema, formData, onFormDataChange }: LiveFor
     }
 
     try {
+      if (uiSchema.trim()) {
+        parsedUISchema = JSON.parse(uiSchema);
+      }
+    } catch (e) {
+      newErrors.push(`UI Schema Error: ${e instanceof Error ? e.message : 'Invalid JSON'}`);
+    }
+
+    try {
       if (formData.trim()) {
         parsedFormData = JSON.parse(formData);
         isFormDataValid = true;
@@ -61,11 +71,12 @@ export function LiveFormRenderer({ schema, formData, onFormDataChange }: LiveFor
 
     return {
       parsedSchema,
+      parsedUISchema,
       parsedFormData,
       isSchemaValid,
       isFormDataValid,
     };
-  }, [schema, formData]);
+  }, [schema, uiSchema, formData]);
 
   const handleFormChange = (data: any) => {
     const formDataString = JSON.stringify(data.formData, null, 2);
@@ -91,6 +102,7 @@ export function LiveFormRenderer({ schema, formData, onFormDataChange }: LiveFor
     return (
       <Form
         schema={parsedSchema}
+        uiSchema={parsedUISchema}
         formData={initialData}
         validator={validator}
         onChange={onChangeHandler}

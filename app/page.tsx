@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { SchemaEditor } from '@/components/schema-editor';
 import { JSONObjectEditor } from '@/components/json-object-editor';
+import { UISchemaEditor } from '@/components/ui-schema-editor';
 import { LiveFormRenderer } from '@/components/live-form-renderer';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Code, FileText } from 'lucide-react';
+
+const defaultUseCase = "userProfile";
 
 const defaultSchema = `{
   "type": "object",
@@ -66,6 +69,25 @@ const useCases = {
   userProfile: {
     label: "User Profile",
     schema: defaultSchema,
+    uiSchema: `{
+      "bio": {
+        "ui:widget": "textarea",
+        "ui:options": {
+          "rows": 4
+        }
+      },
+      "email": {
+        "ui:options": {
+          "inputType": "email"
+        }
+      },
+      "isActive": {
+        "ui:widget": "checkbox"
+      },
+      "role": {
+        "ui:widget": "select"
+      }
+    }`,
     formData: defaultFormData
   },
   autoScalingGroup: {
@@ -118,6 +140,15 @@ const useCases = {
           "default": false
         }
       }
+    }`,
+    uiSchema: `{
+      "instanceType": {
+        "ui:widget": "select"
+      },
+      "monitoring": {
+        "ui:widget": "checkbox"
+      },
+      "ui:order": ["groupName", "minSize", "maxSize", "targetSize", "instanceType", "cooldown", "monitoring"]
     }`,
     formData: `{
       "groupName": "web-servers",
@@ -199,6 +230,20 @@ const useCases = {
         }
       }
     }`,
+    uiSchema: `{
+      "ui:order": ["name", "namespace", "image", "replicas", "resources", "ports"],
+      "resources": {
+        "ui:order": ["cpu", "memory"]
+      },
+      "ports": {
+        "items": {
+          "ui:order": ["containerPort", "protocol"],
+          "protocol": {
+            "ui:widget": "select"
+          }
+        }
+      }
+    }`,
     formData: `{
       "name": "frontend-app",
       "namespace": "production",
@@ -220,12 +265,14 @@ const useCases = {
 
 export default function Home() {
   const [schema, setSchema] = useState(defaultSchema);
+  const [uiSchema, setUISchema] = useState(useCases[defaultUseCase].uiSchema);
   const [formData, setFormData] = useState(defaultFormData);
-  const [selectedUseCase, setSelectedUseCase] = useState<keyof typeof useCases>("userProfile");
+  const [selectedUseCase, setSelectedUseCase] = useState<keyof typeof useCases>(defaultUseCase);
 
   const handleUseCaseChange = (useCase: keyof typeof useCases) => {
     setSelectedUseCase(useCase);
     setSchema(useCases[useCase].schema);
+    setUISchema(useCases[useCase].uiSchema);
     setFormData(useCases[useCase].formData);
   };
 
@@ -276,12 +323,27 @@ export default function Home() {
               Code Editors
             </div>
             
-            <div className="flex-1 min-h-0">
-              <SchemaEditor value={schema} onChange={setSchema} />
-            </div>
-            
-            <div className="flex-1 min-h-0">
-              <JSONObjectEditor value={formData} onChange={setFormData} />
+            <div className="flex-1 min-h-0 grid grid-rows-3 gap-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-gray-700">JSON Schema</span>
+                <div className="flex-1">
+                  <SchemaEditor value={schema} onChange={setSchema} />
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-gray-700">UI Schema</span>
+                <div className="flex-1">
+                  <UISchemaEditor value={uiSchema} onChange={setUISchema} />
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-gray-700">Form Data</span>
+                <div className="flex-1">
+                  <JSONObjectEditor value={formData} onChange={setFormData} />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -295,6 +357,7 @@ export default function Home() {
             <div className="flex-1 min-h-0">
               <LiveFormRenderer
                 schema={schema}
+                uiSchema={uiSchema}
                 formData={formData}
                 onFormDataChange={setFormData}
               />

@@ -7,13 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
-import { 
-  TextWidget, 
-  TextareaWidget, 
-  CheckboxWidget, 
-  SelectWidget,
-  SubmitButton 
-} from './custom-form-widgets';
 
 interface LiveFormRendererProps {
   schema: string;
@@ -21,13 +14,6 @@ interface LiveFormRendererProps {
   formData: string;
   onFormDataChange: (data: string) => void;
 }
-
-const widgets = {
-  TextWidget,
-  TextareaWidget,
-  CheckboxWidget,
-  SelectWidget,
-};
 
 export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange }: LiveFormRendererProps) {
   const [activeTab, setActiveTab] = useState('create');
@@ -107,11 +93,8 @@ export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange 
         validator={validator}
         onChange={onChangeHandler}
         onSubmit={handleFormSubmit}
-        widgets={widgets}
-        className="space-y-4"
-        >
-        <SubmitButton />
-      </Form>
+        className="rjsf"
+      />
     );
   };
 

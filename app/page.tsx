@@ -325,21 +325,18 @@ export default function Home() {
             
             <div className="flex-1 min-h-0 grid grid-rows-3 gap-4">
               <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-gray-700">JSON Schema</span>
                 <div className="flex-1">
                   <SchemaEditor value={schema} onChange={setSchema} />
                 </div>
               </div>
               
               <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-gray-700">UI Schema</span>
                 <div className="flex-1">
                   <UISchemaEditor value={uiSchema} onChange={setUISchema} />
                 </div>
               </div>
               
               <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-gray-700">Form Data</span>
                 <div className="flex-1">
                   <JSONObjectEditor value={formData} onChange={setFormData} />
                 </div>

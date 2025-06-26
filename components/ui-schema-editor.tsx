@@ -1,7 +1,6 @@
 'use client';
 
-import { Card } from '@/components/ui/card';
-import Editor from '@monaco-editor/react';
+import { JSONEditor } from './json-editor';
 
 interface UISchemaEditorProps {
   value: string;
@@ -9,29 +8,5 @@ interface UISchemaEditorProps {
 }
 
 export function UISchemaEditor({ value, onChange }: UISchemaEditorProps) {
-  const handleEditorChange = (value: string | undefined) => {
-    if (value !== undefined) {
-      onChange(value);
-    }
-  };
-
-  return (
-    <Card className="h-full overflow-hidden">
-      <Editor
-        height="100%"
-        defaultLanguage="json"
-        value={value}
-        onChange={handleEditorChange}
-        theme="vs-dark"
-        options={{
-          minimap: { enabled: false },
-          fontSize: 14,
-          lineNumbers: 'on',
-          folding: true,
-          formatOnPaste: true,
-          formatOnType: true
-        }}
-      />
-    </Card>
-  );
+  return <JSONEditor title="UI Schema" value={value} onChange={onChange} />;
 }

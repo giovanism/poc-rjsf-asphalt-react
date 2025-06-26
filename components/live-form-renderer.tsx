@@ -76,7 +76,7 @@ export function LiveFormRenderer({ schema, formData, onFormDataChange }: LiveFor
     console.log('Form submitted:', data.formData);
   };
 
-  const renderForm = (initialData?: any) => {
+  const renderForm = (initialData?: any, onChangeHandler?: (data: any) => void) => {
     if (!isSchemaValid || !parsedSchema) {
       return (
         <div className="flex items-center justify-center h-64 text-muted-foreground">
@@ -93,12 +93,13 @@ export function LiveFormRenderer({ schema, formData, onFormDataChange }: LiveFor
         schema={parsedSchema}
         formData={initialData}
         validator={validator}
-        onChange={handleFormChange}
+        onChange={onChangeHandler}
         onSubmit={handleFormSubmit}
         widgets={widgets}
-        children={<SubmitButton />}
         className="space-y-4"
-      />
+        >
+        <SubmitButton />
+      </Form>
     );
   };
 
@@ -141,7 +142,7 @@ export function LiveFormRenderer({ schema, formData, onFormDataChange }: LiveFor
           
           <TabsContent value="update" className="flex-1 min-h-0 px-6 pb-6 mt-0">
             <div className="h-full overflow-auto">
-              {renderForm(parsedFormData)}
+              {renderForm(parsedFormData, handleFormChange)}
             </div>
           </TabsContent>
           

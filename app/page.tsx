@@ -6,6 +6,7 @@ import { JSONObjectEditor } from '@/components/json-object-editor';
 import { UISchemaEditor } from '@/components/ui-schema-editor';
 import { LiveFormRenderer } from '@/components/live-form-renderer';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, Code, FileText } from 'lucide-react';
 
 const defaultUseCase = "userProfile";
@@ -422,24 +423,32 @@ export default function Home() {
               Code Editors
             </div>
             
-            <div className="flex-1 min-h-0 grid grid-rows-3 gap-4">
-              <div className="flex flex-col gap-2">
-                <div className="flex-1">
-                  <SchemaEditor value={schema} onChange={setSchema} />
-                </div>
-              </div>
-              
-              <div className="flex flex-col gap-2">
-                <div className="flex-1">
-                  <UISchemaEditor value={uiSchema} onChange={setUISchema} />
-                </div>
-              </div>
-              
-              <div className="flex flex-col gap-2">
-                <div className="flex-1">
-                  <JSONObjectEditor value={formData} onChange={setFormData} />
-                </div>
-              </div>
+            <div className="flex-1 min-h-0">
+              <Tabs defaultValue="schema" className="h-full flex flex-col">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="schema">JSON Schema</TabsTrigger>
+                  <TabsTrigger value="uiSchema">UI Schema</TabsTrigger>
+                  <TabsTrigger value="formData">Form Data</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="schema" className="flex-1 min-h-0 mt-0">
+                  <div className="h-full">
+                    <SchemaEditor value={schema} onChange={setSchema} />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="uiSchema" className="flex-1 min-h-0 mt-0">
+                  <div className="h-full">
+                    <UISchemaEditor value={uiSchema} onChange={setUISchema} />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="formData" className="flex-1 min-h-0 mt-0">
+                  <div className="h-full">
+                    <JSONObjectEditor value={formData} onChange={setFormData} />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
 

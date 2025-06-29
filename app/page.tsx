@@ -66,6 +66,105 @@ const defaultFormData = `{
 }`;
 
 const useCases = {
+  releaseSpec: {
+    label: "Release Specification",
+    schema: `{
+      "type": "object",
+      "title": "Release Specification",
+      "properties": {
+        "specification": {
+          "type": "object",
+          "title": "Specification",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": []
+    }`,
+    uiSchema: `{}`,
+    formData: `{}`
+  },
+  releaseSpecCustom: {
+    label: "Release Specification (custom)",
+    schema: `{
+      "$id": "/schemas/custom-specification",
+      "type": "object",
+      "title": "Release Specification",
+      "properties": {
+        "specification": {
+          "type": "object",
+          "title": "Specification",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string"
+                },
+                "memory": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": []
+    }`,
+    uiSchema: `{}`,
+    formData: `{
+      "specification": {
+        "type": "custom",
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "1",
+          "memory": "1Gi"
+        }
+      }
+    }`
+  },
   userProfile: {
     label: "User Profile",
     schema: defaultSchema,

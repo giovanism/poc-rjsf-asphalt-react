@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Form from '@rjsf/core';
+import { FieldProps, RegistryFieldsType } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
+import { CustomSpecificationField } from './custom-specification-field';
 
 interface LiveFormRendererProps {
   schema: string;
@@ -14,6 +16,10 @@ interface LiveFormRendererProps {
   formData: string;
   onFormDataChange: (data: string) => void;
 }
+
+const fields: RegistryFieldsType = {
+  '/schemas/custom-specification': CustomSpecificationField,
+};
 
 export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange }: LiveFormRendererProps) {
   const [activeTab, setActiveTab] = useState('create');
@@ -89,6 +95,7 @@ export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange 
       <Form
         schema={parsedSchema}
         uiSchema={parsedUISchema}
+        fields={fields}
         formData={initialData}
         validator={validator}
         onChange={onChangeHandler}

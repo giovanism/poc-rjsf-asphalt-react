@@ -108,7 +108,19 @@ const useCases = {
       "required": []
     }`,
     uiSchema: `{}`,
-    formData: `{}`
+    formData: `{
+      "specification": {
+        "type": "custom",
+        "requests": {
+          "cpu": "500m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "1",
+          "memory": "1Gi"
+        }
+      }
+    }`
   },
   releaseSpecCustom: {
     label: "Release Specification (custom)",

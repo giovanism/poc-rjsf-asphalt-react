@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Form from '@rjsf/core';
 import { FieldProps, RegistryFieldsType } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
@@ -10,7 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CustomSpecificationField } from './custom-specification-field';
 import { Button } from './ui/button';
-import { PostgrestClient } from '@supabase/postgrest-js';
+import { PostgrestClient, PostgrestResponse } from '@supabase/postgrest-js';
+import { useToast } from '@/hooks/use-toast';
 
 interface LiveFormRendererProps {
   schema: string;
@@ -34,12 +35,94 @@ export function LiveFormRenderer({ schema, uiSchema, formData, postgrestTable, o
   const [activeTab, setActiveTab] = useState('create');
   const [errors, setErrors] = useState<string[]>([]);
   const [tableData, setTableData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     pageSize: 10,
     total: 0
   });
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { toast } = useToast();
+
+  const POSTGREST_URL = 'http://localhost:3001';
+  const postgrest = useMemo(() => new PostgrestClient(POSTGREST_URL), []);
+
+  const fetchTableData = useCallback(async () => {
+    if (!postgrestTable) return;
+
+    setIsLoading(true);
+    try {
+      const offset = (pagination.page - 1) * pagination.pageSize;
+      const rangeStart = offset;
+      const rangeEnd = offset + pagination.pageSize - 1;
+
+      const { count, data, error } = await postgrest
+        .from(postgrestTable)
+        .select('*', { count: 'exact' })
+        .range(rangeStart, rangeEnd);
+      
+      if (error) {
+        throw new Error(`PostgREST Error: ${error.message}`);
+      }
+      
+      setTableData(data || []);
+      setPagination(prev => ({
+        ...prev,
+        total: count || 0,
+      }));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setErrors(prev => [...prev, `Failed to fetch data: ${error instanceof Error ? error.message : 'Unknown error'}`]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [postgrestTable, pagination.page, pagination.pageSize, postgrest]);
+
+  const handleFormSubmit = async (data: any) => {
+    if (!postgrestTable) {
+      console.log('Form submitted (no postgrestTable):', data.formData);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const POSTGREST_URL = 'http://localhost:3001';
+      const postgrest = new PostgrestClient(POSTGREST_URL);
+      const { error } = await postgrest.from(postgrestTable).insert(data.formData);
+      
+      if (error) {
+        throw new Error(`PostgREST Error: ${error.message}`);
+      }
+
+      // Show success toast
+      toast({
+        title: "Success",
+        description: "Data submitted successfully",
+        variant: "default",
+      });
+
+      // Refresh the list if we're on the list tab
+      if (activeTab === 'list') {
+        await fetchTableData();
+      }
+      
+      // Clear form data after successful submission
+      onFormDataChange('{}');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setErrors(prev => [...prev, `Failed to submit form: ${errorMessage}`]);
+      
+      // Show error toast
+      toast({
+        title: "Error",
+        description: `Failed to submit form: ${errorMessage}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const { parsedSchema, parsedUISchema, parsedFormData, isSchemaValid, isFormDataValid } = useMemo(() => {
     let parsedSchema = null;
@@ -91,10 +174,6 @@ export function LiveFormRenderer({ schema, uiSchema, formData, postgrestTable, o
     onFormDataChange(formDataString);
   };
 
-  const handleFormSubmit = (data: any) => {
-    console.log('Form submitted:', data.formData);
-  };
-
   const renderForm = (initialData?: any, onChangeHandler?: (data: any) => void) => {
     if (!isSchemaValid || !parsedSchema) {
       return (
@@ -121,42 +200,11 @@ export function LiveFormRenderer({ schema, uiSchema, formData, postgrestTable, o
     );
   };
 
-  const fetchTableData = async () => {
-    if (!postgrestTable) return;
-
-    setIsLoading(true);
-    try {
-      const offset = (pagination.page - 1) * pagination.pageSize;
-      const rangeStart = offset;
-      const rangeEnd = offset + pagination.pageSize - 1;
-
-      const POSTGREST_URL = 'http://localhost:3001';
-      const postgrest = new PostgrestClient(POSTGREST_URL);
-      const { count, data, error } = await postgrest.from(postgrestTable).select('*', { count: 'exact' })
-        .range(rangeStart, rangeEnd);
-      
-      if (error) {
-        throw new Error(`PostgREST Error: ${error.message}`);
-      }
-      
-      setTableData(data);
-      setPagination(prev => ({
-        ...prev,
-        total: count ? count : 0,
-      }));
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setErrors(prev => [...prev, `Failed to fetch data: ${error instanceof Error ? error.message : 'Unknown error'}`]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (postgrestTable && activeTab === 'list') {
       fetchTableData();
     }
-  }, [postgrestTable, activeTab, pagination.page, pagination.pageSize]);
+  }, [postgrestTable, activeTab, pagination.page, pagination.pageSize, fetchTableData]);
 
   return (
     <Card className="h-full flex flex-col overflow-hidden">

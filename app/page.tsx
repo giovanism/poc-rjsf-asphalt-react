@@ -133,11 +133,16 @@ const useCases: Record<string, UseCase> = {
   releaseSpecCustom: {
     label: "Release Specification (custom)",
     schema: `{
-      "$id": "/schemas/custom-specification",
       "type": "object",
       "title": "Release Specification",
       "properties": {
+        "id": {
+          "type": "string",
+          "title": "ID",
+          "description": "Unique identifier for the release"
+        },
         "specification": {
+          "$id": "/schemas/custom-specification",
           "type": "object",
           "title": "Specification",
           "properties": {
@@ -171,10 +176,15 @@ const useCases: Record<string, UseCase> = {
       },
       "required": []
     }`,
-    uiSchema: `{}`,
+    uiSchema: `{
+      "id": {
+        "ui:disabled": true
+      }
+    }`,
     formData: `{
+      "id": "56b07c4a-4302-4cbc-8f28-3c8e956f4d3e",
       "specification": {
-        "type": "custom",
+        "type": "small",
         "requests": {
           "cpu": "500m",
           "memory": "512Mi"

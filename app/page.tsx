@@ -57,8 +57,7 @@ const defaultSchema = `{
     "role": {
       "type": "string",
       "title": "Role",
-      "enum": ["user", "admin", "moderator"],
-      "enumNames": ["User", "Administrator", "Moderator"]
+      "enum": ["user", "admin", "moderator"]
     }
   },
   "required": ["firstName", "lastName", "email"]
@@ -216,7 +215,8 @@ const useCases: Record<string, UseCase> = {
         "ui:widget": "checkbox"
       },
       "role": {
-        "ui:widget": "select"
+        "ui:widget": "select",
+        "ui:enumNames": ["User", "Administrator", "Moderator"]
       }
     }`,
     formData: defaultFormData
@@ -255,8 +255,7 @@ const useCases: Record<string, UseCase> = {
         "instanceType": {
           "type": "string",
           "title": "Instance Type",
-          "enum": ["t3.micro", "t3.small", "t3.medium", "t3.large"],
-          "enumNames": ["t3.micro (2 vCPU, 1GB)", "t3.small (2 vCPU, 2GB)", "t3.medium (2 vCPU, 4GB)", "t3.large (2 vCPU, 8GB)"]
+          "enum": ["t3.micro", "t3.small", "t3.medium", "t3.large"]
         },
         "cooldown": {
           "type": "integer",
@@ -274,7 +273,8 @@ const useCases: Record<string, UseCase> = {
     }`,
     uiSchema: `{
       "instanceType": {
-        "ui:widget": "select"
+        "ui:widget": "select",
+        "ui:enumNames": ["t3.micro (2 vCPU, 1GB)", "t3.small (2 vCPU, 2GB)", "t3.medium (2 vCPU, 4GB)", "t3.large (2 vCPU, 8GB)"]
       },
       "monitoring": {
         "ui:widget": "checkbox"

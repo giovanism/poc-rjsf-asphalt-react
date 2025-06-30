@@ -7,23 +7,39 @@ import validator from '@rjsf/validator-ajv8';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CustomSpecificationField } from './custom-specification-field';
+import { Button } from './ui/button';
+import { PostgrestClient } from '@supabase/postgrest-js';
 
 interface LiveFormRendererProps {
   schema: string;
   uiSchema: string;
   formData: string;
+  postgrestTable?: string;
   onFormDataChange: (data: string) => void;
+}
+
+interface PaginationState {
+  page: number;
+  pageSize: number;
+  total: number;
 }
 
 const fields: RegistryFieldsType = {
   '/schemas/custom-specification': CustomSpecificationField,
 };
 
-export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange }: LiveFormRendererProps) {
+export function LiveFormRenderer({ schema, uiSchema, formData, postgrestTable, onFormDataChange }: LiveFormRendererProps) {
   const [activeTab, setActiveTab] = useState('create');
   const [errors, setErrors] = useState<string[]>([]);
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    pageSize: 10,
+    total: 0
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   const { parsedSchema, parsedUISchema, parsedFormData, isSchemaValid, isFormDataValid } = useMemo(() => {
     let parsedSchema = null;
@@ -105,6 +121,43 @@ export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange 
     );
   };
 
+  const fetchTableData = async () => {
+    if (!postgrestTable) return;
+
+    setIsLoading(true);
+    try {
+      const offset = (pagination.page - 1) * pagination.pageSize;
+      const rangeStart = offset;
+      const rangeEnd = offset + pagination.pageSize - 1;
+
+      const POSTGREST_URL = 'http://localhost:3001';
+      const postgrest = new PostgrestClient(POSTGREST_URL);
+      const { count, data, error } = await postgrest.from(postgrestTable).select('*', { count: 'exact' })
+        .range(rangeStart, rangeEnd);
+      
+      if (error) {
+        throw new Error(`PostgREST Error: ${error.message}`);
+      }
+      
+      setTableData(data);
+      setPagination(prev => ({
+        ...prev,
+        total: count ? count : 0,
+      }));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setErrors(prev => [...prev, `Failed to fetch data: ${error instanceof Error ? error.message : 'Unknown error'}`]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (postgrestTable && activeTab === 'list') {
+      fetchTableData();
+    }
+  }, [postgrestTable, activeTab, pagination.page, pagination.pageSize]);
+
   return (
     <Card className="h-full flex flex-col overflow-hidden">
       <CardHeader className="pb-3 flex-shrink-0">
@@ -129,10 +182,11 @@ export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange 
       <CardContent className="flex-1 min-h-0 overflow-hidden p-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
           <div className="px-6 pt-6 pb-2 flex-shrink-0">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className={`grid w-full ${postgrestTable ? 'grid-cols-4' : 'grid-cols-3'}`}>
               <TabsTrigger value="create">Create Form</TabsTrigger>
               <TabsTrigger value="update">Update Form</TabsTrigger>
               <TabsTrigger value="view">View Object</TabsTrigger>
+              {postgrestTable && <TabsTrigger value="list">List Objects</TabsTrigger>}
             </TabsList>
           </div>
           
@@ -168,6 +222,65 @@ export function LiveFormRenderer({ schema, uiSchema, formData, onFormDataChange 
               )}
             </div>
           </TabsContent>
+
+          {postgrestTable && (
+            <TabsContent value="list" className="flex-1 min-h-0 px-6 pb-6 mt-0">
+              <div className="h-full flex flex-col">
+                {isLoading ? (
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center text-muted-foreground">
+                      Loading...
+                    </div>
+                  </div>
+                ) : tableData.length > 0 ? (
+                  <>
+                    <div className="flex-1 overflow-auto">
+                      <div className="space-y-4">
+                        {tableData.map((item, index) => (
+                          <Card key={index}>
+                            <CardContent className="p-4">
+                              <pre className="text-sm bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap">
+                                {JSON.stringify(item, null, 2)}
+                              </pre>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="text-sm text-muted-foreground">
+                        {`Showing ${((pagination.page - 1) * pagination.pageSize) + 1}-${Math.min(pagination.page * pagination.pageSize, pagination.total)} of ${pagination.total}`}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                          disabled={pagination.page <= 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                          disabled={pagination.page >= Math.ceil(pagination.total / pagination.pageSize)}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center text-muted-foreground">
+                      No data available
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </CardContent>
     </Card>

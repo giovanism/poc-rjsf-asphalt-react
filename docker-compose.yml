@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: rjsf_prototype
+      POSTGRES_PASSWORD: rjsf_prototype
+      POSTGRES_DB: rjsf_prototype
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  
+  postgrest:
+    image: postgrest/postgrest:latest
+    environment:
+      PGRST_DB_URI: "postgres://rjsf_prototype:rjsf_prototype@db:5432/rjsf_prototype"
+      PGRST_DB_SCHEMA: "api"
+      PGRST_DB_ANON_ROLE: "web_anon"
+      PGRST_SERVER_PORT: 3000
+    depends_on:
+      - db
+    ports:
+      - "3001:3000"
+
+volumes:
+  postgres_data:

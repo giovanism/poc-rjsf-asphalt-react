@@ -42,6 +42,7 @@
     "@rjsf/core": "^5.18.4",
     "@rjsf/utils": "^5.18.4",
     "@rjsf/validator-ajv8": "^5.18.4",
+    "@supabase/postgrest-js": "^1.19.4",
     "@types/node": "20.6.2",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",

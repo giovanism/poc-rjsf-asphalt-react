@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, Code, FileText } from 'lucide-react';
 
+interface UseCase {
+  label: string;
+  schema: string;
+  uiSchema: string;
+  formData: string;
+  postgrestTable?: string;
+}
+
 const defaultUseCase = "userProfile";
 
 const defaultSchema = `{
@@ -66,7 +74,7 @@ const defaultFormData = `{
   "role": "user"
 }`;
 
-const useCases = {
+const useCases: Record<string, UseCase> = {
   releaseSpec: {
     label: "Release Specification",
     schema: `{
@@ -176,7 +184,8 @@ const useCases = {
           "memory": "1Gi"
         }
       }
-    }`
+    }`,
+    postgrestTable: "releases"
   },
   userProfile: {
     label: "User Profile",
@@ -476,6 +485,7 @@ export default function Home() {
                 schema={schema}
                 uiSchema={uiSchema}
                 formData={formData}
+                postgrestTable={useCases[selectedUseCase].postgrestTable}
                 onFormDataChange={setFormData}
               />
             </div>

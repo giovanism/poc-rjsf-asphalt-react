@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import Form from '@rjsf/core';
+import { withTheme } from '@rjsf/core';
 import { FieldProps, RegistryFieldsType } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import { CustomSpecificationField } from './custom-specification-field';
 import { Button } from './ui/button';
 import { PostgrestClient, PostgrestResponse } from '@supabase/postgrest-js';
 import { useToast } from '@/hooks/use-toast';
+import { asphaltTheme } from './asphalt-theme';
 
 interface LiveFormRendererProps {
   schema: string;
@@ -30,6 +31,9 @@ interface PaginationState {
 const fields: RegistryFieldsType = {
   '/schemas/custom-specification': CustomSpecificationField,
 };
+
+// Create a themed form component
+const ThemedForm = withTheme(asphaltTheme);
 
 export function LiveFormRenderer({ schema, uiSchema, formData, postgrestTable, onFormDataChange }: LiveFormRendererProps) {
   const [activeTab, setActiveTab] = useState('create');
@@ -187,7 +191,7 @@ export function LiveFormRenderer({ schema, uiSchema, formData, postgrestTable, o
     }
 
     return (
-      <Form
+      <ThemedForm
         schema={parsedSchema}
         uiSchema={parsedUISchema}
         fields={fields}

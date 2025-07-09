@@ -18,7 +18,7 @@ INSERT INTO api.releases (id, specification) VALUES
 ('c0f8b2d3-4a5e-4c9b-8f3e-6d7c8e9f0a1b', '{"type":"custom","requests":{"cpu":"2","memory":"4Gi"},"limits":{"cpu":"4","memory":"8Gi"}}');
 
 
-INSERT INTO api.releases (id, specification) VALUES
+INSERT INTO api.releases (specification) VALUES
 ('{"type":"small","requests":{"cpu":"0.5","memory":"512Mi"},"limits":{"cpu":"1","memory":"1Gi"}}'),
 ('{"type":"custom","requests":{"cpu":"2","memory":"6Gi"},"limits":{"cpu":"3","memory":"12Gi"}}'),
 ('{"type":"custom","requests":{"cpu":"1","memory":"2Gi"},"limits":{"cpu":"2","memory":"4Gi"}}'),

@@ -17,66 +17,9 @@ interface UseCase {
   postgrestTable?: string;
 }
 
-const defaultUseCase = "userProfile";
+const defaultUseCase = "releaseSpec";
 
 const defaultSchema = `{
-  "type": "object",
-  "title": "User Profile",
-  "properties": {
-    "firstName": {
-      "type": "string",
-      "title": "First Name",
-      "minLength": 2
-    },
-    "lastName": {
-      "type": "string",
-      "title": "Last Name",
-      "minLength": 2
-    },
-    "email": {
-      "type": "string",
-      "title": "Email",
-      "format": "email"
-    },
-    "age": {
-      "type": "integer",
-      "title": "Age",
-      "minimum": 18,
-      "maximum": 120
-    },
-    "bio": {
-      "type": "string",
-      "title": "Biography",
-      "description": "Tell us about yourself"
-    },
-    "isActive": {
-      "type": "boolean",
-      "title": "Active User",
-      "default": true
-    },
-    "role": {
-      "type": "string",
-      "title": "Role",
-      "enum": ["user", "admin", "moderator"]
-    }
-  },
-  "required": ["firstName", "lastName", "email"]
-}`;
-
-const defaultFormData = `{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "age": 30,
-  "bio": "Full-stack developer with 5+ years of experience",
-  "isActive": true,
-  "role": "user"
-}`;
-
-const useCases: Record<string, UseCase> = {
-  releaseSpec: {
-    label: "Release Specification",
-    schema: `{
       "type": "object",
       "title": "Release Specification",
       "properties": {
@@ -113,9 +56,9 @@ const useCases: Record<string, UseCase> = {
         }
       },
       "required": []
-    }`,
-    uiSchema: `{}`,
-    formData: `{
+    }`;
+
+const defaultFormData = `{
       "specification": {
         "type": "custom",
         "requests": {
@@ -127,7 +70,14 @@ const useCases: Record<string, UseCase> = {
           "memory": "1Gi"
         }
       }
-    }`
+    }`;
+
+const useCases: Record<string, UseCase> = {
+  releaseSpec: {
+    label: "Release Specification",
+    schema: defaultSchema,
+    uiSchema: `{}`,
+    formData: defaultFormData
   },
   releaseSpecCustom: {
     label: "Release Specification (custom)",
@@ -195,31 +145,6 @@ const useCases: Record<string, UseCase> = {
       }
     }`,
     postgrestTable: "releases"
-  },
-  userProfile: {
-    label: "User Profile",
-    schema: defaultSchema,
-    uiSchema: `{
-      "bio": {
-        "ui:widget": "textarea",
-        "ui:options": {
-          "rows": 4
-        }
-      },
-      "email": {
-        "ui:options": {
-          "inputType": "email"
-        }
-      },
-      "isActive": {
-        "ui:widget": "checkbox"
-      },
-      "role": {
-        "ui:widget": "select",
-        "ui:enumNames": ["User", "Administrator", "Moderator"]
-      }
-    }`,
-    formData: defaultFormData
   },
   autoScalingGroup: {
     label: "Auto Scaling Group",

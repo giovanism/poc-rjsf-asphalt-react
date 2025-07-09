@@ -9,6 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@asphalt-react/button": "^2.5.0",
+    "@asphalt-react/card": "^2.1.0",
+    "@asphalt-react/checkbox": "^2.5.0",
+    "@asphalt-react/iconpack": "^2.0.0",
+    "@asphalt-react/selection": "^2.5.1",
+    "@asphalt-react/textfield": "^2.5.1",
+    "@asphalt-react/theme-provider": "^2.1.0",
+    "@asphalt-react/typography": "^2.3.0",
     "@hookform/resolvers": "^3.9.0",
     "@monaco-editor/react": "^4.6.0",
     "@next/swc-wasm-nodejs": "13.5.1",

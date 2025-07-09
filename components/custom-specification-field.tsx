@@ -1,16 +1,8 @@
 import { FieldProps } from "@rjsf/utils";
 import { useEffect, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
+import { Card } from "@asphalt-react/card";
+import { Textfield } from "@asphalt-react/textfield";
+import { Dropdown } from "@asphalt-react/selection";
 
 interface Specification {
   type: string;
@@ -103,37 +95,34 @@ export function CustomSpecificationField(props: FieldProps) {
         ([_, preset]) => preset.type === value.type
       )?.[0];
 
+  // Create options array for Dropdown
+  const dropdownOptions = [
+    ...Object.entries(types).map(([key, preset]) => ({
+      id: preset.type,
+      key: preset.type,
+      value: preset.type,
+      label: preset.type,
+    })),
+    { id: "custom", key: "custom", value: "custom", label: "custom" }
+  ];
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Specification</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <Card className="w-full p-6">
+      <h3 className="text-lg font-semibold mb-4">Specification</h3>
+      <div className="space-y-4">
         {error ? (
           <div className="text-red-500">{error}</div>
         ) : (
           <>
             <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="Type">Type</Label>
-              <Select
+              <label htmlFor="Type" className="text-sm font-medium">Type</label>
+              <Dropdown
                 disabled={loading}
                 value={currentPresetKey || ""}
-                onValueChange={handleTypeChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a preset..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {Object.entries(types).map(([key, preset]) => (
-                      <SelectItem key={key} value={key}>
-                        {preset.type}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="custom">custom</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+                onChange={(value) => handleTypeChange(value)}
+                placeholder="Select a preset..."
+                items={dropdownOptions}
+              />
             </div>
 
             {isCustom ? (
@@ -144,8 +133,8 @@ export function CustomSpecificationField(props: FieldProps) {
                   </h4>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-sm">CPU</Label>
-                      <Input
+                      <label className="text-sm font-medium">CPU</label>
+                      <Textfield
                         type="text"
                         value={value.requests?.cpu || ""}
                         onChange={handleCustomChange("requests", "cpu")}
@@ -153,8 +142,8 @@ export function CustomSpecificationField(props: FieldProps) {
                       />
                     </div>
                     <div>
-                      <Label>Memory</Label>
-                      <Input
+                      <label className="text-sm font-medium">Memory</label>
+                      <Textfield
                         type="text"
                         value={value.requests?.memory || ""}
                         onChange={handleCustomChange("requests", "memory")}
@@ -170,8 +159,8 @@ export function CustomSpecificationField(props: FieldProps) {
                   </h4>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <Label className="text-sm">CPU</Label>
-                      <Input
+                      <label className="text-sm font-medium">CPU</label>
+                      <Textfield
                         type="text"
                         value={value.limits?.cpu || ""}
                         onChange={handleCustomChange("limits", "cpu")}
@@ -179,8 +168,8 @@ export function CustomSpecificationField(props: FieldProps) {
                       />
                     </div>
                     <div>
-                      <Label>Memory</Label>
-                      <Input
+                      <label className="text-sm font-medium">Memory</label>
+                      <Textfield
                         type="text"
                         value={value.limits?.memory || ""}
                         onChange={handleCustomChange("limits", "memory")}
@@ -200,28 +189,27 @@ export function CustomSpecificationField(props: FieldProps) {
                     </h4>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-sm">CPU</Label>
+                        <label className="text-sm font-medium">CPU</label>
                         <div className="text-sm">{value.requests.cpu}</div>
                       </div>
                       <div>
-                        <Label className="text-sm">Memory</Label>
+                        <label className="text-sm font-medium">Memory</label>
                         <div className="text-sm">{value.requests.memory}</div>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    {" "}
                     <h4 className="font-medium text-base mb-2">
                       Limits
                     </h4>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-sm">CPU</Label>
+                        <label className="text-sm font-medium">CPU</label>
                         <div className="text-sm">{value.limits.cpu}</div>
                       </div>
                       <div>
-                        <Label className="text-sm">Memory</Label>
+                        <label className="text-sm font-medium">Memory</label>
                         <div className="text-sm">{value.limits.memory}</div>
                       </div>
                     </div>
@@ -231,7 +219,7 @@ export function CustomSpecificationField(props: FieldProps) {
             )}
           </>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

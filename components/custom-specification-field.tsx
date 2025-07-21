@@ -59,8 +59,8 @@ export function CustomSpecificationField(props: FieldProps) {
     setIsCustom(!matchingPreset && value.type !== "");
   }, [value.type, types]);
 
-  const handleTypeChange = (typeKey: string) => {
-    if (typeKey === "custom") {
+  const handleTypeChange = (item: { value: string }) => {
+    if (item.value === "custom") {
       setIsCustom(true);
       // Keep existing values when switching to custom mode, just change the type
       props.onChange({
@@ -70,7 +70,7 @@ export function CustomSpecificationField(props: FieldProps) {
       return;
     }
 
-    const type = types[typeKey];
+    const type = types[item.value];
     if (type) {
       setIsCustom(false);
       props.onChange(type);
@@ -119,7 +119,7 @@ export function CustomSpecificationField(props: FieldProps) {
               <Dropdown
                 disabled={loading}
                 value={currentPresetKey || ""}
-                onChange={(value) => handleTypeChange(value)}
+                onChange={handleTypeChange}
                 placeholder="Select a preset..."
                 items={dropdownOptions}
               />

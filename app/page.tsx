@@ -62,7 +62,7 @@ const defaultFormData = `{
       "specification": {
         "type": "custom",
         "requests": {
-          "cpu": "500m",
+          "cpu": "0.5",
           "memory": "512Mi"
         },
         "limits": {
@@ -135,7 +135,7 @@ const useCases: Record<string, UseCase> = {
       "specification": {
         "type": "small",
         "requests": {
-          "cpu": "500m",
+          "cpu": "0.5",
           "memory": "512Mi"
         },
         "limits": {

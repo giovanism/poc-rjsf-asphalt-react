@@ -4,6 +4,7 @@ import { Button } from "@asphalt-react/button";
 import { Textfield } from "@asphalt-react/textfield";
 import { Checkbox } from "@asphalt-react/checkbox";
 import { Card } from "@asphalt-react/card";
+import { Dropdown } from "@asphalt-react/selection";
 
 // Asphalt Text Input Widget
 const TextWidget: React.FC<WidgetProps> = (props) => {
@@ -152,10 +153,8 @@ const SelectWidget: React.FC<WidgetProps> = (props) => {
 
   const { enumOptions, enumDisabled } = options;
 
-  const _onChange = ({
-    target: { value },
-  }: React.ChangeEvent<HTMLSelectElement>) =>
-    onChange(value === "" ? options.emptyValue : value);
+  const _onChange = (item: { value: string, id: string })  =>
+    onChange(item);
 
   const _onBlur = ({
     target: { value },
@@ -163,7 +162,7 @@ const SelectWidget: React.FC<WidgetProps> = (props) => {
 
   const _onFocus = ({
     target: { value },
-  }: React.FocusEvent<HTMLSelectElement>) => onFocus(id, value);
+  }: React.FocusEvent<HTMLInputElement>) => onFocus(id, value);
 
   const hasError = rawErrors.length > 0;
 
@@ -178,31 +177,21 @@ const SelectWidget: React.FC<WidgetProps> = (props) => {
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      <select
+      <Dropdown
         id={id}
-        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          hasError ? "border-red-500" : "border-gray-300"
-        } ${
-          disabled || readonly ? "bg-gray-50 cursor-not-allowed" : "bg-white"
-        }`}
+        labelId={label}
         required={required}
         disabled={disabled || readonly}
         value={value || ""}
         onChange={_onChange}
         onBlur={_onBlur}
         onFocus={_onFocus}
-      >
-        {!required && <option value="">Choose an option</option>}
-        {enumOptions?.map(({ value, label }, index) => (
-          <option
-            key={index}
-            value={value}
-            disabled={enumDisabled && enumDisabled.indexOf(value) !== -1}
-          >
-            {label}
-          </option>
-        ))}
-      </select>
+        items={enumOptions ? enumOptions.map(({ value, label }) => ({
+          id: value,
+          key: label,
+        })) : []}
+        placeholder="Select an option..."
+      />
       {hasError && (
         <p className="mt-1 text-sm text-red-600">{rawErrors.join(", ")}</p>
       )}
@@ -225,6 +214,7 @@ const CheckboxWidget: React.FC<WidgetProps> = (props) => {
     onChange,
     onBlur,
     onFocus,
+    options,
     schema,
     rawErrors = [],
   } = props;

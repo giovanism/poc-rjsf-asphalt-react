@@ -490,6 +490,9 @@ export const asphaltTheme = {
     ObjectFieldTemplate,
     ArrayFieldTemplate,
     ErrorListTemplate,
+    ButtonTemplates: {
+      SubmitButton,
+    }
   },
 };
 

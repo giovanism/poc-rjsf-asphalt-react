@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { TypedNextResponse, route, routeOperation  } from 'next-rest-framework';
+import { z } from 'zod';
 
 export const dynamic = 'force-static';
 export const revalidate = false; // Never revalidate this static data
@@ -61,6 +62,34 @@ const specificationPresets = {
   }
 };
 
-export async function GET() {
-  return NextResponse.json(specificationPresets);
-}
+export const { GET } = route({
+  getPresetsSpecifications: routeOperation({
+    openApiOperation: {
+      summary: 'Get Preset Specifications',
+      description: 'Retrieve a list of preset specifications for resource requests and limits.',
+      tags: ['Presets']
+    },
+    method: 'GET'
+  })
+    .outputs([
+      {
+        status: 200,
+        contentType: 'application/json',
+        body: z.record(z.object({
+          type: z.string(),
+          requests: z.object({
+            cpu: z.string(),
+            memory: z.string()
+          }),
+          limits: z.object({
+            cpu: z.string(),
+            memory: z.string()
+          })
+        }))
+      }
+    ])
+    .handler(() => {
+      return TypedNextResponse.json(specificationPresets);
+    }),
+
+})

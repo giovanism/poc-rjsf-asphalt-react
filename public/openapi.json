@@ -1,0 +1,375 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "My API",
+    "description": "My API description.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/presets/specifications": {
+      "get": {
+        "operationId": "getPresetsSpecifications",
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPresetsSpecifications200ResponseBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unknown error occurred, trying again might help.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        },
+        "summary": "Get Preset Specifications",
+        "description": "Retrieve a list of preset specifications for resource requests and limits.",
+        "tags": ["Presets"]
+      }
+    },
+    "/api/releases": {
+      "post": {
+        "operationId": "postPresetsSpecifications",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostPresetsSpecificationsRequestBody"
+              }
+            }
+          }
+        },
+        "summary": "Create Release",
+        "description": "Create a new release with specified details.",
+        "tags": ["Releases"]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorMessage": {
+        "type": "object",
+        "properties": { "message": { "type": "string" } },
+        "additionalProperties": false
+      },
+      "GetPresetsSpecifications200ResponseBody": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string" },
+                "memory": { "type": "string" }
+              },
+              "required": ["cpu", "memory"],
+              "additionalProperties": false
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string" },
+                "memory": { "type": "string" }
+              },
+              "required": ["cpu", "memory"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["type", "requests", "limits"],
+          "additionalProperties": false
+        }
+      },
+      "MessageWithErrors": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code", "path", "message"],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Discriminator field for the Zod issue type."
+                },
+                "path": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [{ "type": "string" }, { "type": "number" }]
+                  },
+                  "description": "Path to the error in the validated object, represented as an array of strings and/or numbers."
+                },
+                "message": {
+                  "type": "string",
+                  "description": "Human-readable message describing the validation error."
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "required": ["message"],
+        "additionalProperties": false
+      },
+      "PostPresetsSpecificationsRequestBody": {
+        "type": "object",
+        "properties": {
+          "origin_release_id": { "type": "string", "nullable": true },
+          "name": { "type": "string", "x-faker": "commerce.productName" },
+          "type": {
+            "type": "string",
+            "enum": ["service", "worker", "cronjob", "job"],
+            "nullable": false
+          },
+          "protocol": {
+            "type": "string",
+            "enum": ["http", "grpc"],
+            "nullable": true
+          },
+          "migration_command": {
+            "type": "string",
+            "example": "/usr/bin/java -jar wallet.jar com.testing.Migration",
+            "nullable": true
+          },
+          "schedule": {
+            "type": "string",
+            "example": "* * * * *",
+            "nullable": true
+          },
+          "run_command": {
+            "type": "string",
+            "example": "/usr/bin/java -jar wallet.jar",
+            "nullable": false
+          },
+          "liveness_probe": {
+            "type": "object",
+            "properties": {
+              "initial_delay_seconds": { "type": "number", "nullable": true },
+              "period_seconds": { "type": "number", "nullable": true },
+              "timeout_seconds": { "type": "number", "nullable": true },
+              "success_threshold": { "type": "number", "nullable": true },
+              "failure_threshold": { "type": "number", "nullable": true },
+              "path": {
+                "type": "string",
+                "example": "/ping",
+                "x-faker": "internet.color",
+                "nullable": false
+              }
+            }
+          },
+          "readiness_probe": {
+            "type": "object",
+            "properties": {
+              "initial_delay_seconds": { "type": "number", "nullable": true },
+              "period_seconds": { "type": "number", "nullable": true },
+              "timeout_seconds": { "type": "number", "nullable": true },
+              "success_threshold": { "type": "number", "nullable": true },
+              "failure_threshold": { "type": "number", "nullable": true },
+              "path": {
+                "type": "string",
+                "example": "/ping",
+                "x-faker": "internet.color",
+                "nullable": false
+              }
+            }
+          },
+          "env": {
+            "type": "string",
+            "enum": [
+              "development",
+              "staging",
+              "staging-secondary",
+              "sandbox",
+              "sandbox-secondary",
+              "production",
+              "production-secondary"
+            ]
+          },
+          "specification": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "general.small",
+                  "general.medium",
+                  "general.large",
+                  "general.xlarge",
+                  "mem-optimized.small",
+                  "mem-optimized.medium",
+                  "mem-optimized.large",
+                  "mem-optimized.xlarge",
+                  "custom"
+                ],
+                "nullable": false
+              },
+              "requests": {
+                "type": "object",
+                "properties": {
+                  "cpu": { "type": "string", "example": "0.5" },
+                  "memory": { "type": "string", "example": "512Mi" }
+                },
+                "nullable": true
+              },
+              "limits": {
+                "type": "object",
+                "properties": {
+                  "cpu": { "type": "string", "example": "1" },
+                  "memory": { "type": "string", "example": "1024Mi" }
+                },
+                "nullable": true
+              }
+            }
+          },
+          "replication": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["small", "medium", "large", "xlarge", "custom"]
+              },
+              "value": { "type": "number", "example": 12 },
+              "min_value": { "type": "number", "example": 1, "nullable": true },
+              "max_value": { "type": "number", "example": 5, "nullable": true }
+            },
+            "nullable": true
+          },
+          "autoscaling": { "type": "boolean", "nullable": true },
+          "db_migration_separated": { "type": "boolean", "nullable": true },
+          "config_vars": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "nullable": true },
+                "source": { "type": "string", "enum": ["yggdrasil"] },
+                "path": {
+                  "type": "string",
+                  "example": "wallet-service/staging,staging-vn"
+                }
+              }
+            }
+          },
+          "cluster_ids": {
+            "description": "In the release creation API, \"cluster_ids\" can represent various cluster contexts (1) During a dry run, it indicates the source cluster (internal or external). (2) In a non-dry run release, it is consisted of one target cluster or one target cluster as the first element and external source cluster in the second element.",
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["f2aaec56-fea3-485c-88d5-540bc5016079"]
+          },
+          "namespace": { "type": "string" },
+          "canary": {
+            "type": "object",
+            "properties": {
+              "config_vars": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string", "nullable": true },
+                      "source": { "type": "string", "enum": ["yggdrasil"] },
+                      "path": {
+                        "type": "string",
+                        "example": "wallet-service/staging,staging-vn"
+                      }
+                    }
+                  }
+                }
+              },
+              "replication": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["small", "medium", "large", "xlarge", "custom"]
+                  },
+                  "value": { "type": "number", "example": 12 },
+                  "min_value": {
+                    "type": "number",
+                    "example": 1,
+                    "nullable": true
+                  },
+                  "max_value": {
+                    "type": "number",
+                    "example": 5,
+                    "nullable": true
+                  }
+                },
+                "nullable": true
+              }
+            }
+          },
+          "traffic_management_config": {
+            "type": "object",
+            "properties": {
+              "traffic_policy": {
+                "type": "object",
+                "properties": {
+                  "load_balancer": {
+                    "type": "object",
+                    "properties": {
+                      "simple": {
+                        "type": "object",
+                        "properties": { "policy": { "type": "string" } }
+                      }
+                    }
+                  }
+                }
+              },
+              "retry_policy": {
+                "type": "object",
+                "properties": { "attempt": { "type": "integer" } }
+              },
+              "outlier_detection_policy": {
+                "type": "object",
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "max_ejection_percent": { "type": "number" },
+                  "consecutive_gateway_errors": { "type": "number" },
+                  "base_ejection_time": { "type": "number" }
+                }
+              }
+            }
+          },
+          "lifecycle": {
+            "type": "object",
+            "properties": {
+              "termination_grace_period_secs": { "type": "number" }
+            }
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["deployment", "statefulset", "cronjob", "job"]
+          },
+          "statefulset_config": {
+            "type": "object",
+            "properties": {
+              "initial_storage_size": { "type": "string", "example": "1Gi" },
+              "mount_path": {
+                "type": "string",
+                "example": "/var/www/nginx/html"
+              },
+              "pod_management_policy": {
+                "type": "string",
+                "enum": ["OrderedReady", "Parallel"]
+              }
+            }
+          },
+          "existing_name": { "type": "string" },
+          "existing_namespace": { "type": "string" }
+        }
+      }
+    }
+  }
+}

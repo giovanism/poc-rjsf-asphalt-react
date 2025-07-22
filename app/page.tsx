@@ -199,7 +199,10 @@ const useCases: Record<string, UseCase> = {
     uiSchema: `{
       "instanceType": {
         "ui:widget": "select",
-        "ui:enumNames": ["t3.micro (2 vCPU, 1GB)", "t3.small (2 vCPU, 2GB)", "t3.medium (2 vCPU, 4GB)", "t3.large (2 vCPU, 8GB)"]
+        "ui:enumNames": ["t3.micro (2 vCPU, 1GB)", "t3.small (2 vCPU, 2GB)", "t3.medium (2 vCPU, 4GB)", "t3.large (2 vCPU, 8GB)"],
+        "ui:options": {
+          "ui:gsh:endpoint": "/api/instance-types"
+        }
       },
       "monitoring": {
         "ui:widget": "checkbox"

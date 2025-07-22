@@ -148,10 +148,14 @@ const SelectWidget: React.FC<WidgetProps> = (props) => {
     onFocus,
     options,
     schema,
+    uiSchema,
     rawErrors = [],
   } = props;
 
   const { enumOptions, enumDisabled } = options;
+
+  console.log("uiSchema:", uiSchema);
+  console.log("options:", options);
 
   const _onChange = (item: { value: string, id: string })  =>
     onChange(item);
@@ -163,6 +167,7 @@ const SelectWidget: React.FC<WidgetProps> = (props) => {
   const _onFocus = ({
     target: { value },
   }: React.FocusEvent<HTMLInputElement>) => onFocus(id, value);
+  // somehow asphalt onFocus does not want React.FocusEvent<HTMLSelectElement>
 
   const hasError = rawErrors.length > 0;
 
